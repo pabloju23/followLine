@@ -3,6 +3,7 @@ from HAL import HAL
 import cv2
 
 i = 0
+
 while True:
     img = HAL.getImage()
     
