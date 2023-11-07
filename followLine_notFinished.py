@@ -7,7 +7,7 @@ import math
 
 # PID class
 class PID:
-    def __init__(self, kp, ki, kd, setpoint):
+    def __init__(self, kp, ki, kd, st):
         # Parámetros del controlador PID
         self.kp = kp  # Ganancia proporcional
         self.ki = ki  # Ganancia integral
@@ -81,35 +81,31 @@ class ErrBuff:
         # Borrar todos los errores del búfer
         self.buffer = []
 
-# Definir parámetros del control PID para la dirección
+# Definir los parámetros del control PID para la dirección
 kp_steering = 0.01
 ki_steering = 0.001
 kd_steering = 0.001
 max_steering_angle = 0.5  # Máximo ángulo de dirección permitido
-
-# Definir el perfil de velocidad para las curvas
-normal_speed = 1.0  # Velocidad normal en tramos rectos
-curve_speed = 0.5   # Velocidad reducida en curvas
+normal_speed = 1
+curve_speed = 0.5
 
 # Crear una instancia de la clase PID para el control de dirección
-steering_pid = PID(kp_steering, ki_steering, kd_steering, setpoint=0)
+steering_pid = PID(kp_steering, ki_steering, kd_steering, st=0.1)  # Ajusta st según tu necesidad
 
-# Crear una instancia de la clase ErrBuff para almacenar errores
-error_buffer = ErrBuff(max_size=10)
-
+# En el bucle principal
 while True:
     img = HAL.getImage()
-    
-    # Procesar la imagen para detectar la pista o los bordes de la carretera
-    # (debe implementarse la detección de la carretera en la imagen)
 
-    # Calcular el error de dirección en función de la detección de la carretera
-    road_error = 0  # Calcula el error adecuadamente
+    # Detectar la carretera y calcular el error de dirección (debes implementar esto)
+
+    # Calcular el error de dirección basado en la detección de la carretera
+    road_error = 0  # Debes calcular el error adecuadamente
+
+    # Configurar los límites de salida para el controlador de dirección
+    steering_pid.set_lims(-max_steering_angle, max_steering_angle)
 
     # Control de dirección (PID)
     steering_output = steering_pid.calc(road_error)
-    # Limitar el ángulo de dirección en función de max_steering_angle
-    steering_output = max(-max_steering_angle, min(max_steering_angle, steering_output))
 
     # Control de velocidad en las curvas
     if abs(steering_output) > 0.1:  # Detectar una curva (ajusta el valor según sea necesario)
@@ -120,20 +116,9 @@ while True:
     # Control de dirección del coche
     HAL.setW(steering_output)
 
-    # Recopilar errores para análisis
-    error_buffer.add_error(road_error)
-
-    # Lógica para detectar si el coche ha completado el circuito (debe implementarse)
-    if is_circuit_completed():
-        # Detener el coche
-        HAL.setV(0)
-        HAL.setW(0)
-        break
-
-    # Actualizar la interfaz de usuario con información útil
-    GUI.showImage(img)
 
 # Realizar análisis o cálculos adicionales basados en los errores almacenados
-average_error = error_buffer.calculate_average()
+average_error = ErrBuff.calculate_average()
 print("Promedio de errores:", average_error)
+
 
