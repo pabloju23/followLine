@@ -4,7 +4,7 @@ import cv2
 import time
 
 # Parámetros del controlador PID
-kp = 0.001
+kp = 0.005
 ki = 0.0
 kd = 0.001
 
@@ -21,6 +21,18 @@ x_margin = 10  # Margen en la coordenada x
 y_margin= 0
 
 i = 0
+
+curve_speed_factor = 0.2
+min_speed = 1
+initial_speed = 3
+
+
+def calculate_speed_factor(curve_angle):
+    # Diseña una función que ajuste la velocidad en función del ángulo de la curva
+    # Puedes experimentar con diferentes funciones según tus necesidades
+    # Por ejemplo, puedes devolver un valor más bajo para curvas más agresivas
+    return max(0.5, 1 - 0.01 * abs(curve_angle))
+
 
 while True:
     img = HAL.getImage()
@@ -64,9 +76,19 @@ while True:
             # Calcula la salida del PID
             output = proportional + integral + derivative
 
-            # Ajustar la velocidad y el ángulo de dirección en función de la salida del PID
-            HAL.setV(1)
-            HAL.setW(0.01 * output)
+            # Calcula el ángulo de la curva
+            ellipse = cv2.fitEllipse(max_contour)
+            curve_angle = ellipse[2]
+
+            # Ajusta la velocidad en función del ángulo de la curva
+            speed_factor = calculate_speed_factor(curve_angle)
+            # Calcula la velocidad considerando el límite inferior y la velocidad inicial
+            speed = max(min_speed, initial_speed * speed_factor * (1 - curve_speed_factor * abs(output)))
+
+
+            # Ajustar la velocidad y el ángulo de dirección en función de la salida del PID y la velocidad
+            HAL.setV(speed)
+            HAL.setW(0.8 * output * speed_factor)
 
             # Registra las coordenadas iniciales si aún no se han registrado
             if start_coordinates is None:
@@ -78,7 +100,7 @@ while True:
                     print("Circuito completado!")
                     HAL.setV(0)  # Detén el coche
                     HAL.setW(0)
-                  #  break
+                    #break
 
             # Actualiza las variables del PID para la próxima iteración
             last_error = err
@@ -91,5 +113,3 @@ while True:
     GUI.showImage(red_mask)
     print('%d cX: %.2f cY: %.2f' % (i, cX, cY))
     i += 1
-
-
