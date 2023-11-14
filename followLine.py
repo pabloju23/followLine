@@ -23,15 +23,12 @@ y_margin= 0
 i = 0
 
 curve_speed_factor = 0.2
-min_speed = 1
-initial_speed = 3
+min_speed = 1.5
+initial_speed = 5
 
 
 def calculate_speed_factor(curve_angle):
-    # Diseña una función que ajuste la velocidad en función del ángulo de la curva
-    # Puedes experimentar con diferentes funciones según tus necesidades
-    # Por ejemplo, puedes devolver un valor más bajo para curvas más agresivas
-    return max(0.5, 1 - 0.01 * abs(curve_angle))
+    return max(0.5, 1 - 0.001 * abs(curve_angle))
 
 
 while True:
@@ -88,6 +85,7 @@ while True:
 
             # Ajustar la velocidad y el ángulo de dirección en función de la salida del PID y la velocidad
             HAL.setV(speed)
+            print('v_lineal: ', speed)
             HAL.setW(0.8 * output * speed_factor)
 
             # Registra las coordenadas iniciales si aún no se han registrado
