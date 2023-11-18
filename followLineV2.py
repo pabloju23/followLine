@@ -5,8 +5,8 @@ import time
 
 # Parámetros para rectas
 straight_params = {
-    'kp': 0.003,
-    'ki': 0.000001,
+    'kp': 0.001,
+    'ki': 0,
     'kd': 0.001,
     'straight_speed_factor': 0,
     'min_speed': 2,
@@ -15,9 +15,9 @@ straight_params = {
 
 # Parámetros para curvas
 curve_params = {
-    'kp': 0.005,
-    'ki': 0.000001,  
-    'kd': 0.005,
+    'kp': 0.003,
+    'ki': 0,  
+    'kd': 0,
     'curve_speed_factor': 0.2,
     'min_speed': 1.5,
     'initial_speed': 3
@@ -41,7 +41,7 @@ i = 0
 
 
 def calculate_speed_factor(curve_angle):
-    return max(0.5, 1 - 0.001 * abs(curve_angle))
+    return max(0.5, 1 - 0.015 * abs(curve_angle))
 
 
 while True:
@@ -92,7 +92,6 @@ while True:
             # Parte integral con Anti-Windup
             if integral >= 0:
                # integral += params['ki'] * err * dt
-                print('integral: ', integral)
                 integral = max(min(integral, anti_windup_limit), -anti_windup_limit)
             else:
                 integral = 0  # Reiniciar la integral si hay cambio de signo en el error
@@ -103,22 +102,22 @@ while True:
 
             # Calcula la salida del PID
             output = proportional + integral + derivative
-            
+            print('output: ', output)
             # Ajusta la velocidad en función del ángulo de la curva
             speed_factor = calculate_speed_factor(curve_angle)
             
             if in_curve:
                 # Si está en una curva, ajusta la velocidad considerando el límite inferior y la velocidad inicial
-                speed = max(params['min_speed'], params['initial_speed'] * speed_factor * (1 - params['curve_speed_factor'] * abs(output)))
+                speed = max(params['min_speed'], params['initial_speed'] * speed_factor * (1 - abs(output)))
             else:
                 # Si está en una recta, ajusta la velocidad considerando el límite inferior y la velocidad inicial
-                speed = max(params['min_speed'], params['initial_speed'] * speed_factor * (1 - params['straight_speed_factor'] * abs(output)))
+                speed = max(params['min_speed'], params['initial_speed'] * speed_factor * (1 - abs(output)))
 
 
             # Ajustar la velocidad y el ángulo de dirección en función de la salida del PID y la velocidad
             HAL.setV(speed)
             print('v_lineal: ', speed)
-            HAL.setW(0.6 * output * speed_factor)
+            HAL.setW(output * speed_factor)
 
             # Registra las coordenadas iniciales si aún no se han registrado
             if start_coordinates is None:
