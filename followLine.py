@@ -4,9 +4,9 @@ import cv2
 import time
 
 # Parámetros del controlador PID
-kp = 0.005
-ki = 0.0
-kd = 0.001
+kp = 0.002
+ki = 0.0000
+kd = 0.00058
 
 # Inicialización de variables del PID
 last_error = 0
@@ -21,14 +21,17 @@ x_margin = 10  # Margen en la coordenada x
 y_margin= 0
 
 i = 0
-
+v = 6
 curve_speed_factor = 0.2
-min_speed = 1.5
-initial_speed = 5
+min_speed = 3
+initial_speed = 7
 
 
 def calculate_speed_factor(curve_angle):
-    return max(0.5, 1 - 0.001 * abs(curve_angle))
+  if curve_angle > 5:
+    return 1 - 0.01 * abs(curve_angle)
+  else:
+    return 1
 
 
 while True:
@@ -79,14 +82,16 @@ while True:
 
             # Ajusta la velocidad en función del ángulo de la curva
             speed_factor = calculate_speed_factor(curve_angle)
+            print('speed_factor: ', speed_factor) #0.68
+            print('output: ', output) #0.21
             # Calcula la velocidad considerando el límite inferior y la velocidad inicial
-            speed = max(min_speed, initial_speed * speed_factor * (1 - curve_speed_factor * abs(output)))
+            speed = max(min_speed, initial_speed * speed_factor * (1-0.01*abs(output)))
 
-
+            #speed = v
             # Ajustar la velocidad y el ángulo de dirección en función de la salida del PID y la velocidad
             HAL.setV(speed)
             print('v_lineal: ', speed)
-            HAL.setW(0.8 * output * speed_factor)
+            HAL.setW(output)
 
             # Registra las coordenadas iniciales si aún no se han registrado
             if start_coordinates is None:
