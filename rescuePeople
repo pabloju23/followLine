@@ -1,10 +1,10 @@
 from GUI import GUI
 from HAL import HAL
 
-victims_x = 30
-victims_y = -40
-boat_x = 0
-boat_y = 0
+boat_x = 40.28061
+boat_y = -3.817639
+victims_x = 40.279786
+victims_y = -3.817161
 
 x_vel = 0.25
 angle = 0.6
@@ -26,6 +26,5 @@ while not ((victims_x-1 < x_pos) and (x_pos <victims_x+1) and (victims_y-1 < y_p
 	# time.sleep(0.01)
 	
 while True:
-	# Enter iterative code!
 	GUI.showImage(HAL.get_frontal_image())
 	GUI.showLeftImage(HAL.get_ventral_image())
