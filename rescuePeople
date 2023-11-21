@@ -18,13 +18,17 @@ y_pos = HAL.get_position()[1]
 HAL.takeoff(3)
 
 while not ((victims_x-1 < x_pos) and (x_pos <victims_x+1) and (victims_y-1 < y_pos) and (y_pos < victims_y+1)):
-	GUI.showImage(HAL.get_frontal_image())
-	GUI.showLeftImage(HAL.get_ventral_image())
-	x_pos = HAL.get_position()[0]
-	y_pos = HAL.get_position()[1]
-	HAL.set_cmd_pos(victims_x, victims_y, 3, angle)
-	# time.sleep(0.01)
+  	GUI.showImage(HAL.get_frontal_image())
+  	GUI.showLeftImage(HAL.get_ventral_image())
+  	x_pos = HAL.get_position()[0]
+  	y_pos = HAL.get_position()[1]
+  	HAL.set_cmd_pos(victims_x, victims_y, 3, angle)
+  	# time.sleep(0.01)
+  	print('x:', x_pos)
+  	print('y:', y_pos)  
 	
+
 while True:
-	GUI.showImage(HAL.get_frontal_image())
-	GUI.showLeftImage(HAL.get_ventral_image())
+    # Enter iterative code!
+    GUI.showImage(HAL.get_frontal_image())
+    GUI.showLeftImage(HAL.get_ventral_image())
