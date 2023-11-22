@@ -1,10 +1,13 @@
 from GUI import GUI
 from HAL import HAL
 
-boat_x = 40.28061
-boat_y = -3.817639
-victims_x = 40.279786
-victims_y = -3.817161
+# Origin: 40º16’48.2” N, 3º49’03.5” W = 430492E, 4459162N
+# Goal: 40º16’47.23” N, 3º49’01.78” W = 430532E, 4459132N
+# Easting coords are related to the x axis and Northing is related to y axis.
+# Goal — Origin: 40E,30S
+# Therefore, the (x, y) coordinates the drone should approach are (40, -30)
+victims_x = 40
+victims_y = -30
 
 x_vel = 0.25
 angle = 0.6
