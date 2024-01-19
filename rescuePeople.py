@@ -72,7 +72,7 @@ while not inpos:
   
   if ((victims_x-pos_th< x_pos) and (x_pos <victims_x+pos_th) and (victims_y-pos_th < y_pos) and (y_pos < victims_y+pos_th)):
       inpos = True
-      searhing = True
+      searching = True
       print('drone in position to rescue people')
   	
 while searching:
