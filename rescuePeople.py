@@ -2,25 +2,6 @@ from GUI import GUI
 from HAL import HAL
 import cv2 as cv
 import math 
-
-
-def FaceFound(face):
-  drone_location = HAL.get_position()
-  dron_orientation = HAL.get_orientation()
-  # Calculate the victim location from the drone orientation and victim pixel coordinates
-  victim_location = (drone_location[0], drone_location[1])
-  # Check if the victim is already saved
-  for known_victim in victims_locations:
-    # Calculate the Euclidean distance to the known victim
-    euclidean_distance = math.sqrt((known_victim[0] - victim_location[0])**2 + (known_victim[1] - victim_location[1])**2)
-    if euclidean_distance < distance_th:
-      # The victim was already found
-      return
-    
-  # If we end the loop, it means that the victim has not been saved yet
-  victims_locations.append(victim_location)  # store the victim location
-  print('saved victim at location: ', victim_location)
-  print('saved victims: ', len(victims_locations))
   
 
 # Origin: 40º16’48.2” N, 3º49’03.5” W = 430492E, 4459162N
@@ -33,7 +14,6 @@ victims_y = -30
 boat_x = 0
 boat_y = 0
 
-x_vel = 0.25
 angle = 0.6
 iterations = 0
 spiral_iterations = 300
@@ -42,13 +22,13 @@ height = 3
 
 pos_th = 0.5
 
-inpos = False
-searching = False
-return_to_base = False
+inpos = False  # is drone in position to rescue?
+searching = False  # if drone is in position then is ready to search
+return_to_base = False  # if all people are rescued then is time to base
 
 # Parameters for the spiral
 distance = 0 # Meters
-distance_inc = 0.98 # Meters
+distance_inc = 0.75 # Meters
 spiral_angle = 0 # rads
 search_max_distance = 50 # Meters
 spiral_angle_increment = 0.15  # radians   
@@ -57,10 +37,31 @@ distance_th = 4.5 # threshold between victims
 face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 n_victims = 5
-saved_victims = 0
 victims_locations = []
+saved_victims = 0
 
 
+def FaceFound(face, saved_victims):
+  drone_location = HAL.get_position()
+  dron_orientation = HAL.get_orientation()
+  # Calculate the victim location from the drone orientation and victim pixel coordinates
+  victim_location = (drone_location[0], drone_location[1])
+  # Check if the victim is already saved
+  for known_victim in victims_locations:
+    # Calculate the Euclidean distance to the known victim
+    euclidean_distance = math.sqrt((known_victim[0] - victim_location[0])**2 + (known_victim[1] - victim_location[1])**2)
+    if euclidean_distance < distance_th:
+      # The victim was already found
+      return saved_victims
+    
+  # If we end the loop, it means that the victim has not been saved yet
+  victims_locations.append(victim_location)  # store the victim location
+  saved_victims += 1
+  print('saved victim at location: ', victim_location)
+  print('saved victims: ', saved_victims)
+  return saved_victims
+  
+  
 HAL.takeoff(3)
 
 while not inpos:
@@ -99,7 +100,7 @@ while searching:
     detected_faces = face_cascade.detectMultiScale(im_rot, 1.1, 4)
     if(len(detected_faces) > 0):
       for face in detected_faces:
-        FaceFound(face)
+        saved_victims = FaceFound(face, saved_victims)
   # Increment spiral angle
   spiral_angle += spiral_angle_increment
   # Increment spiral distance
